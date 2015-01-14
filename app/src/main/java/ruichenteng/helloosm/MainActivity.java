@@ -12,14 +12,13 @@ import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
+import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 public class MainActivity extends ActionBarActivity {
     private TextView tv;
     private MapView mv;
     private UserLocationOverlay myLocationOverlay;
-    private String currentMap = "Current Map";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -28,18 +27,20 @@ public class MainActivity extends ActionBarActivity {
         tv = (TextView) findViewById(R.id.textView);
         mv = (MapView) findViewById(R.id.mapView);
 
-        mv.setMinZoomLevel(mv.getTileProvider().getMinimumZoomLevel());
-        mv.setMaxZoomLevel(mv.getTileProvider().getMaximumZoomLevel());
-        mv.setCenter(mv.getTileProvider().getCenterCoordinate());
-        mv.setZoom(0);
-        currentMap = "Current Map";
-        // Show user location (purposely not in follow mode)
+
+        WebSourceTileLayer ws = new WebSourceTileLayer("openstreetmap", "http://tile.openstreetmap.org/{z}/{x}/{y}.png");
+        ws.setName("OpenStreetMap")
+                .setAttribution("© OpenStreetMap Contributors")
+                .setMinimumZoomLevel(1)
+                .setMaximumZoomLevel(18);
+
+        mv.setTileSource(ws);
         mv.setUserLocationEnabled(true);
         LatLng mLatLng = mv.getUserLocation();
+        mv.setZoom(12);
+        mv.setCenter(mLatLng);
         Log.i("***************************MY Location ***********************************","");
         Log.i("My Location ", mLatLng.toString());
-        mv.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
-        mv.setUserLocationRequiredZoom(12);
         tv.setText(mLatLng.toString());
     }
 }
