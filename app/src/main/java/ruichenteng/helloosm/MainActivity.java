@@ -11,36 +11,59 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 public class MainActivity extends ActionBarActivity {
     private TextView tv;
     private MapView mv;
-    private UserLocationOverlay myLocationOverlay;
+    private WebSourceTileLayer ws;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
         mv = (MapView) findViewById(R.id.mapView);
-
-
-        WebSourceTileLayer ws = new WebSourceTileLayer("openstreetmap", "http://tile.openstreetmap.org/{z}/{x}/{y}.png");
-        ws.setName("OpenStreetMap")
-                .setAttribution("© OpenStreetMap Contributors")
-                .setMinimumZoomLevel(1)
-                .setMaximumZoomLevel(18);
-
-        mv.setTileSource(ws);
         mv.setUserLocationEnabled(true);
+        setUpWebServiceIfNeeded();
         LatLng mLatLng = mv.getUserLocation();
-        mv.setZoom(12);
+        mv.setZoom(21);
         mv.setCenter(mLatLng);
         Log.i("***************************MY Location ***********************************","");
         Log.i("My Location ", mLatLng.toString());
-        tv.setText(mLatLng.toString());
+        tv.setText("My Location is : " + mLatLng.toString());
+
+
+        Thread t = new Thread(new ruichenteng.helloosm.SendLocationThread(mv, this.getApplicationContext()));
+        t.start();
+        while(true){
+            try {
+                t.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpWebServiceIfNeeded();
+    }
+
+    /**
+     *Set up web service to download Open Street Map data
+     */
+    private void setUpWebServiceIfNeeded(){
+        if(ws == null) {
+            ws = new WebSourceTileLayer("openstreetmap", "http://tile.openstreetmap.org/{z}/{x}/{y}.png");
+            ws.setName("OpenStreetMap")
+                    .setAttribution("© OpenStreetMap Contributors")
+                    .setMinimumZoomLevel(1)
+                    .setMaximumZoomLevel(18);
+            mv.setTileSource(ws);
+        }
     }
 }
