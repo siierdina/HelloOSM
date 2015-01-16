@@ -26,25 +26,15 @@ public class MainActivity extends ActionBarActivity {
         tv = (TextView) findViewById(R.id.textView);
         mv = (MapView) findViewById(R.id.mapView);
         mv.setUserLocationEnabled(true);
-        setUpWebServiceIfNeeded();
+        mv.loadFromGeoJSONURL("https://raw.githubusercontent.com/tengr/HelloOSM/master/MelbourneCBD.geojson");
+        //setUpWebServiceIfNeeded();
         LatLng mLatLng = mv.getUserLocation();
-        mv.setZoom(21);
+        mv.setZoom(14);
         mv.setCenter(mLatLng);
         Log.i("***************************MY Location ***********************************","");
         Log.i("My Location ", mLatLng.toString());
         tv.setText("My Location is : " + mLatLng.toString());
 
-
-        Thread t = new Thread(new ruichenteng.helloosm.SendLocationThread(mv, this.getApplicationContext()));
-        t.start();
-        while(true){
-            try {
-                t.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
     }
 
     @Override
